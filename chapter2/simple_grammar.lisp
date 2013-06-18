@@ -2,23 +2,23 @@
 ;; I want these two generate functions in their own files, including the book code
 ;; from this file, but I can't even figure out how to get them to work in this file
 
+;(in-package :CL-USER)
+
 ; problem 2.1 - using cond, but only calling rewrites once
 (defun generate-one (phrase)
   (let ((available-rewrites (rewrites phrase)))
     (cond ((listp phrase)
-	   (mappend #'generate phrase))
-	  ((available-rewrites)
-	   (generate (random-elt available-rewrites)))
-	  (t (list phrase)))))
+	   (mappend #'generate-one phrase))
+	  ((null available-rewrites)
+	   (list phrase))
+	  (t (generate-one (random-elt available-rewrites))))))
 
 ; problem 2.2 - version of rewrite that explicitly differentiates between terminal and 
 ;; non-terminal symbols. I'm confused ... it already does, by checking if it's a list
-
-
 (defun generate-orig (phrase)
   "generate a random sentence or phrase"
   (cond ((listp phrase)
-	 (mappend #'generate phrase))
+	 (mappend #'generate-orig phrase))
 	((rewrites phrase)
 	 (generate-orig (random-elt (rewrites phrase))))
 	(t (list phrase))))
@@ -31,7 +31,11 @@
 
 (defun rewrites (category)
   "Return a list of the possible rewrites for this category."
-  (rule-rhs (assoc category *simple-grammar*)))
+  (rule-rhs (assoc category *grammar*)))
+
+(defun random-elt (choices)
+  "Choose an element from a list at random."
+  (elt choices (random (length choices))))
 
 (defun rule-lhs (rule)
   "The left-hand side of a rule."
@@ -41,8 +45,8 @@
   "The right-hand side of a rule."
   (rest (rest rule)))
 
-;(defvar *grammar* *simple-grammar* 
-;  "The grammar used by generate")
+(defvar *grammar* *simple-grammar* 
+  "The grammar used by generate")
 
 
 (defparameter *simple-grammar*
