@@ -15,6 +15,23 @@
 
 ; problem 2.2 - version of rewrite that explicitly differentiates between terminal and 
 ;; non-terminal symbols. I'm confused ... it already does, by checking if it's a list
+;; Ah - I peeked at the answers, and what they're going for is a version that doesn't
+;; rely on (rewrites phrase) coming back empty and then evaluating to false in the cond. 
+(defun non-terminal? (phrase)
+  "whether or not the input phrase has rewrite, or is a terminal rule"
+  (not (null (rewrites phrase))))
+
+(defun generate-two (phrase)
+  (cond ((listp phrase)
+	 (mappend #'generate-orig phrase))
+	((non-terminal? phrase)
+	 (generate-two (random-elt (rewrites phrase))))
+	(t (list phrase))))
+
+
+
+
+;; original version of generate from the book
 (defun generate-orig (phrase)
   "generate a random sentence or phrase"
   (cond ((listp phrase)
